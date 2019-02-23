@@ -1,1 +1,1 @@
-# kick-motion-analysis
+# kick_motion_analysis
