@@ -1,7 +1,17 @@
 # kick_motion_analysis
 
+### manipulability_bezier
+
+足先の四角はモータの最大速度（無負荷）から計算される実現可能な速度の領域  
+赤い線は与えられたbezier曲線に沿って動かすための速度
+
+![image](https://user-images.githubusercontent.com/5755200/53253210-10a29c80-3704-11e9-8186-c159b8a941ed.png)
 
 ### velocity_limit
+
+モータの最大速度（無負荷）から計算される足先軌道  
+青色が目標軌道，赤色が実際の軌道
+ただし，支持脚が動かないとしたときの挙動
 
 ![image](https://user-images.githubusercontent.com/5755200/53253424-8f97d500-3704-11e9-850a-146fe52e4ec5.png)
 
