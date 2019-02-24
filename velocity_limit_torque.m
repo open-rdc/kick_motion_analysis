@@ -12,8 +12,8 @@ P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
 period = 0.30; % (s)
 
 %parameter low
-stroke = 0.10 % (m)
-P = [0, 0; 0, 0.06; 0.17, 0.06; stroke, 0.0];
+%stroke = 0.10 % (m)
+%P = [0, 0; 0, 0.06; 0.17, 0.06; stroke, 0.0];
 
 function [t1, t2] = inverse_kinematics(x, y, l1, l2)
   l = sqrt(x^2+y^2);

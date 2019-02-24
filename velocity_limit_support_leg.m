@@ -1,6 +1,21 @@
 clear;
 clf;
 
+%parameter
+height = 0.19 % (m)
+stroke = 0.20 % (m)
+motor_velocity = 4.81 % (rad/s) 46rpm
+l1 = 0.108 % (m) length of link
+l2 = 0.108
+ratio = 0.05; % display
+P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
+period = 0.30 % (s)
+cog = 0.3 % (m) center of gravity
+
+%parameter low
+%stroke = 0.10 % (m)
+%P = [0, 0; 0, 0.06; 0.17, 0.06; stroke, 0.0];
+
 function [t1, t2] = inverse_kinematics(x, y, l1, l2)
   l = sqrt(x^2+y^2);
   t1 = t2 = 0;
@@ -24,27 +39,23 @@ function [xd, yd] = bezier_d(P, t)
   yd = Xd(2);
 endfunction
 
-l1 = 0.108;
-l2 = 0.108;
-ratio = 0.1;
-motor_velocity = 4.81; # 46rpm
-
-P = [0, 0; 0.0, 0.1; 0.3, 0.1; 0.2, 0.0];
-period = 0.30;
-
-xr = -0.05;
-yr = -0.18;
+xr = -stroke/4;
+yr = -height;
 [t1r, t2r] = inverse_kinematics(xr, yr, l1, l2);
 
 i = 0;
 dt = 0.01;
-support_leg_stride = 0.10;
+g = 9.8;
+Tc = sqrt(cog/g)
+x0 = -stroke/4;
+v0 = stroke/4*(cosh(period/Tc)+1)/(Tc*sinh(period/Tc))
+
 for t = 0.0: dt/period: period/period
   [xt, yt] = bezier(P, t);
-  x = xt - 0.05;
-  y = yt - 0.180;
+  x = xt - stroke/4;
+  y = yt - height;
 
-  sup_leg_pos = support_leg_stride * t;
+  sup_leg_pos = x0 * cosh(t * period / Tc) + Tc * v0 * sinh(t * period / Tc) - x0
   [t1, t2] = inverse_kinematics(x - sup_leg_pos, y, l1, l2);
   t1r = t1r + max([min([t1 - t1r, motor_velocity * dt]), -motor_velocity * dt]);
   w1r = -max([min([(t1 - t1r) / dt, motor_velocity]), -motor_velocity])/motor_velocity;
@@ -82,7 +93,7 @@ endfor
 hold on;
 axis([-0.10,0.20,-0.25,0.05],"square");
 for n = 1:i
-  if (mod(n - 1, 5) == 0)
+  if (mod(n - 1, 3) == 0)
     plot(arm_x(n,:), arm_y(n,:));
     plot(arm_xr(n,:), arm_yr(n,:), "r");
     plot(mx(n,:), my(n,:), "r");
