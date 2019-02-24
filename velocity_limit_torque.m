@@ -1,6 +1,20 @@
 clear;
 clf;
 
+%parameter
+height = 0.19 % (m)
+stroke = 0.20 % (m)
+motor_velocity = 4.81; % (rad/s) 46rpm
+l1 = 0.108; % (m) length of link
+l2 = 0.108;
+ratio = 0.05; % display
+P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
+period = 0.30; % (s)
+
+%parameter low
+stroke = 0.10 % (m)
+P = [0, 0; 0, 0.06; 0.17, 0.06; stroke, 0.0];
+
 function [t1, t2] = inverse_kinematics(x, y, l1, l2)
   l = sqrt(x^2+y^2);
   t1 = t2 = 0;
@@ -24,24 +38,16 @@ function [xd, yd] = bezier_d(P, t)
   yd = Xd(2);
 endfunction
 
-l1 = 0.108;
-l2 = 0.108;
-ratio = 0.05;
-motor_velocity = 4.81; # 46rpm
-
-P = [0, 0; 0, 0.1; 0.3, 0.1; 0.2, 0.0];
-period = 0.30;
-
-xr = -0.10;
-yr = -0.18;
+xr = -stroke/2;
+yr = -height;
 [t1r, t2r] = inverse_kinematics(xr, yr, l1, l2);
 
 i = 0;
 dt = 0.01;
 for t = 0.0: dt/period: period/period
   [xt, yt] = bezier(P, t);
-  x = xt - 0.10;
-  y = yt - 0.18;
+  x = xt - stroke/2;
+  y = yt - height;
 
   [t1, t2] = inverse_kinematics(x, y, l1, l2);
   
