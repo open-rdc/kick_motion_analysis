@@ -9,12 +9,12 @@ l1 = 0.108 % (m) length of link
 l2 = 0.108
 ratio = 0.05; % display
 P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
-period = 0.30 % (s)
+period = 0.33 % (s)
 cog = 0.3 % (m) center of gravity
-%m1 = 0.23;
-%m2 = 0.35;
-m1 = 0.30;
-m2 = 0.50;
+m1 = 0.23;
+m2 = 0.35;
+%m1 = 0.30;
+%m2 = 0.50;
 I1 = 1/4 * m1 * l1^2;
 I2 = 1/4 * m2 * l2^2;
 p_gain = 50.0;
@@ -82,8 +82,9 @@ t2rd = trd(2)
 i = 0;
 dt = 0.001;
 
-for t = 0.0: dt/period: 2 * period/period
-  sup_pos = x0 * cosh(mod(t,1) * period / Tc) + Tc * v0 * sinh(mod(t,1) * period / Tc) - x0;
+for t = 0.0: dt/period: 1 * period/period
+%  sup_pos = x0 * cosh(mod(t,1) * period / Tc) + Tc * v0 * sinh(mod(t,1) * period / Tc) - x0;
+  sup_pos = x0 * cosh(t * period / Tc) + Tc * v0 * sinh(t * period / Tc) - x0;
   if (t <= 1)
     [xt, yt] = bezier(P, t);
     x = xt - stroke/4;
@@ -103,15 +104,9 @@ for t = 0.0: dt/period: 2 * period/period
   w2r = -t2rd/motor_velocity;
   f2 = max([min([p_gain * (t2 - t2r) - d_gain * t2rd, max_torque * (1 + w2r)]), -max_torque * (1 - w2r)]);
   [t1r, t2r, t1rd, t2rd] = dynamics(t1r, t2r, t1rd, t2rd, f1, f2, l1, l2, m1, m2, I1, I2, motor_velocity, dt);
-%  printf("%f %f %f %f %f %f %f %f %f %f\n",
-%    t1r, t1rd, f1, max_torque * (1 + w1r), -max_torque * (1 - w1r),
-%    t2r, t2rd, f2, max_torque * (1 + w2r), -max_torque * (1 - w2r));
-  
-%  t1r = t1r + max([min([t1 - t1r, motor_velocity * dt]), -motor_velocity * dt]);
-%  t2r = t2r + max([min([t2 - t2r, motor_velocity * dt]), -motor_velocity * dt]);
   tor = [w1r-1 w1r-1 w1r+1 w1r+1 w1r-1; w2r-1 w2r+1 w2r+1 w2r-1 w2r-1];
 
-  if (t1 != 0 || t2 != 0)
+%  if (t1 != 0 || t2 != 0)
     i = i + 1;
     x1 = l1 * cos(t1);
     y1 = l1 * sin(t1);
@@ -135,7 +130,8 @@ for t = 0.0: dt/period: 2 * period/period
 	my(i,:) = m(2,:) * ratio + y2r;
     px(i) = x2r + sup_leg_pos;
     py(i) = y2r;
-  endif
+    printf("%f %f %f %f %f %f %f %f\n", x2r, y2r, t1, t2, t1r, t2r, t1rd, t2rd);
+%  endif
 endfor
 
 hold on;
