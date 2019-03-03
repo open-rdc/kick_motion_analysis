@@ -2,7 +2,8 @@ clear;
 clf;
 
 %parameter
-height = 0.198 % (m)
+height = 0.198
+ % (m)
 stroke = 0.20 % (m)
 motor_velocity = 4.81 % (rad/s) 46rpm
 l1 = 0.108 % (m) length of link
@@ -81,18 +82,29 @@ t2rd = trd(2)
 i = 0;
 dt = 0.001;
 
+sum_velocity = 0;
+for t = 0.0: dt/period: 1 * period/period
+  [xd, yd] = bezier_d(P, t);
+  sum_velocity = sum_velocity + sqrt(xd^2+yd^2);
+endfor
+average_velocity = sum_velocity / (period / dt);
+
+tt = 0.0;
 for t = 0.0: dt/period: 1 * period/period
 %  sup_pos = x0 * cosh(mod(t,1) * period / Tc) + Tc * v0 * sinh(mod(t,1) * period / Tc) - x0;
-  sup_pos = x0 * cosh(t * period / Tc) + Tc * v0 * sinh(t * period / Tc) - x0;
-  if (t <= 1)
-    [xt, yt] = bezier(P, t);
-    x = xt - stroke/4 - 0.02;
+  sup_pos = x0 * cosh(tt * period / Tc) + Tc * v0 * sinh(tt * period / Tc) - x0;
+  if (tt <= 1)
+    [xt, yt] = bezier(P, tt);
+    x = xt - stroke/4-0.02;
     y = yt - height;
+    [xd, yd] = bezier_d(P, tt);
+    velocity = sqrt(xd^2+yd^2);
+    tt = tt + average_velocity / velocity * (dt / period);
   else
     x = stroke*3/4-sup_pos;
   endif
 
-  if (t <= 1)
+  if (tt <= 1)
     sup_leg_pos = sup_pos;
   else
     sup_leg_pos = stroke/2;
@@ -129,7 +141,7 @@ for t = 0.0: dt/period: 1 * period/period
 	my(i,:) = m(2,:) * ratio + y2r;
     px(i) = x2r + sup_leg_pos;
     py(i) = y2r;
-    printf("%f %f %f %f %f %f %f %f\n", x2r, y2r, t1, t2, t1r, t2r, t1rd, t2rd);
+    printf("%f %f %f %f %f %f %f %f %f\n", tt, x2r, y2r, t1, t2, t1r, t2r, t1rd, t2rd);
 %  endif
 endfor
 
