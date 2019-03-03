@@ -2,23 +2,22 @@ clear;
 clf;
 
 %parameter
-height = 0.20 % (m)
+height = 0.19 % (m)
 stroke = 0.20 % (m)
 motor_velocity = 4.81 % (rad/s) 46rpm
 l1 = 0.108 % (m) length of link
 l2 = 0.108
 ratio = 0.05; % display
-P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
-period = 0.33 % (s)
+P = [0, 0; 0, 0.06; stroke+0.2, 0.06; stroke, 0.0];
+period = 0.62 % (s)
 cog = 0.3 % (m) center of gravity
-m1 = 0.23;
-m2 = 0.35;
-%m1 = 0.30;
-%m2 = 0.50;
+m1 = 0.23+0.2;
+m2 = 0.35+0.3;
+Im = 0.0;
 I1 = 1/4 * m1 * l1^2;
 I2 = 1/4 * m2 * l2^2;
 p_gain = 50.0;
-d_gain = 0.0;
+d_gain = 0.5;
 max_torque = 4.6; % (Nm)
 
 %parameter low
@@ -48,10 +47,10 @@ function [xd, yd] = bezier_d(P, t)
   yd = Xd(2);
 endfunction
 
-function [t1, t2, t1d, t2d] = dynamics(t1, t2, t1d, t2d, f1, f2, l1, l2, m1, m2, I1, I2, motor_velocity, dt)
+function [t1, t2, t1d, t2d] = dynamics(t1, t2, t1d, t2d, f1, f2, l1, l2, m1, m2, I1, I2, Im, motor_velocity, dt)
   g = 9.8;
-  M = [I1+l1^2*m2+l1^2*m1 l1*l2*m2*cos(t2-t1);
-       l1*l2*m2*cos(t2-t1) (2*l2^2*m2+2*I2)/2];
+  M = [I1+l1^2*m2+l1^2*m1+Im l1*l2*m2*cos(t2-t1);
+       l1*l2*m2*cos(t2-t1) (2*l2^2*m2+2*I2)/2+Im];
   D = [(l1*l2*m2*t1d*t2d-l1*l2*m2*t2d^2)*sin(t2-t1);
        (l1*l2*m2*t1d^2-l1*l2*m2*t1d*t2d)*sin(t2-t1)];
   G = [g*l1*m2*cos(t1)+g*l1*m1*cos(t1);
@@ -103,7 +102,7 @@ for t = 0.0: dt/period: 1 * period/period
   f1 = max([min([p_gain * (t1 - t1r) - d_gain * t1rd, max_torque * (1 + w1r)]), -max_torque * (1 - w1r)]);
   w2r = -t2rd/motor_velocity;
   f2 = max([min([p_gain * (t2 - t2r) - d_gain * t2rd, max_torque * (1 + w2r)]), -max_torque * (1 - w2r)]);
-  [t1r, t2r, t1rd, t2rd] = dynamics(t1r, t2r, t1rd, t2rd, f1, f2, l1, l2, m1, m2, I1, I2, motor_velocity, dt);
+  [t1r, t2r, t1rd, t2rd] = dynamics(t1r, t2r, t1rd, t2rd, f1, f2, l1, l2, m1, m2, I1, I2, Im, motor_velocity, dt);
   tor = [w1r-1 w1r-1 w1r+1 w1r+1 w1r-1; w2r-1 w2r+1 w2r+1 w2r-1 w2r-1];
 
 %  if (t1 != 0 || t2 != 0)
@@ -130,12 +129,12 @@ for t = 0.0: dt/period: 1 * period/period
 	my(i,:) = m(2,:) * ratio + y2r;
     px(i) = x2r + sup_leg_pos;
     py(i) = y2r;
-    printf("%f %f %f %f %f %f %f %f\n", x2r, y2r, t1, t2, t1r, t2r, t1rd, t2rd);
+%    printf("%f %f %f %f %f %f %f %f\n", x2r, y2r, t1, t2, t1r, t2r, t1rd, t2rd);
 %  endif
 endfor
 
 hold on;
-axis([-0.10,0.20,-0.25,0.05],"square");
+axis([-0.10,0.25,-0.25,0.10],"square");
 for n = 1:i
   if (mod(n - 1, 50) == 0)
     plot(arm_x(n,:), arm_y(n,:));

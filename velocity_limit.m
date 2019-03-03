@@ -3,13 +3,13 @@ clf;
 
 %parameter
 height = 0.19 % (m)
-stroke = 0.20 % (m)
+stroke = 0.10 % (m)
 motor_velocity = 4.81; % (rad/s) 46rpm
 l1 = 0.108; % (m) length of link
 l2 = 0.108;
 ratio = 0.1; % display
-P = [0, 0; 0, 0.1; 0.3, 0.1; stroke, 0.0];
-period = 0.30; % (s)
+P = [0, 0; 0, 0.06; stroke+0.2, 0.06; stroke, 0.0];
+period = 0.62; % (s)
 
 %parameter low
 %stroke = 0.10 % (m)
