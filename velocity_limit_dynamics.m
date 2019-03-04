@@ -4,12 +4,12 @@ clf;
 %parameter
 height = 0.198 % (m)
 stroke = 0.20 % (m)
-motor_velocity = 4.81 % (rad/s) 46rpm
+motor_velocity = 4.8 % (rad/s) 46rpm
 l1 = 0.108 % (m) length of link
 l2 = 0.108
 ratio = 0.05; % display
 P = [0, 0; 0, 0.06; stroke+0.2, 0.06; stroke, 0.0];
-period = 0.62 % (s)
+period = 0.31 % (s)
 cog = 0.3 % (m) center of gravity
 m1 = 0.23+0.2;
 m2 = 0.35+0.3;
@@ -18,11 +18,7 @@ I1 = 1/4 * m1 * l1^2;
 I2 = 1/4 * m2 * l2^2;
 p_gain = 50.0;
 d_gain = 0.5;
-max_torque = 4.6; % (Nm)
-
-%parameter low
-%stroke = 0.10 % (m)
-%P = [0, 0; 0, 0.06; 0.17, 0.06; stroke, 0.0];
+max_torque = 7.6; % (Nm)
 
 function [t1, t2] = inverse_kinematics(x, y, l1, l2)
   l = sqrt(x^2+y^2);
@@ -139,11 +135,11 @@ for n = 1:i
   if (mod(n - 1, 50) == 0)
     plot(arm_x(n,:), arm_y(n,:));
     plot(arm_xr(n,:), arm_yr(n,:), "r");
-    plot(mx(n,:), my(n,:), "r");
+%    plot(mx(n,:), my(n,:), "r");
     plot(px(n), py(n), ".or");
   endif
-  plot(xdp, ydp);
-  plot(xdpr, ydpr, "r");
 end
+plot(xdp, ydp);
+plot(xdpr, ydpr, "r");
 hold off;
 
